@@ -2,39 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar sesion - Control de Asistencia</title>
-    <link rel="stylesheet" href="css/estilo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Virtual ISFT N° 182 - Acceso</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #1a2936; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .campus-card { background: white; width: 850px; max-width: 95%; border-radius: 8px; overflow: hidden; display: flex; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .left-banner { width: 50%; padding: 40px; text-align: center; border-right: 1px solid #e1e8ed; background: #fafbfc; }
+        .left-banner h2 { color: #2c3e50; font-size: 20px; margin-bottom: 25px; }
+        .left-banner img { width: 170px; margin-bottom: 20px; }
+        .left-banner p { color: #7f8c8d; font-style: italic; font-size: 14px; }
+        .right-form { width: 50%; background: #243447; color: white; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        .right-form h3 { font-size: 22px; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #34495e; padding-bottom: 10px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input { width: 100%; padding: 12px; border-radius: 4px; border: 1px solid #34495e; background: #192734; color: white; font-size: 14px; }
+        .form-group input:focus { outline: none; border-color: #3182ce; }
+        .btn-acceder { background: #2b6cb0; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; transition: background 0.3s; }
+        .btn-acceder:hover { background: #3182ce; }
+        .error-msg { background: #e53e3e; color: white; padding: 10px; border-radius: 4px; font-size: 13px; margin-top: 15px; display: none; text-align: center; }
+    </style>
 </head>
 <body>
-
-    <div class="login-wrapper">
-        <div class="login-card">
-            <img src="img/logo.png" alt="Logo del instituto" class="logo">
-            <h1>Control de Asistencia</h1>
-            <p class="subtitulo">Ingresa con tu email y contraseña</p>
-
-            <form id="formLogin">
-                <label for="loginEmail">Usuario (email)</label>
-                <input type="email" id="loginEmail" required>
-
-                <label for="loginPassword">Contraseña</label>
-                <input type="password" id="loginPassword" required>
-
-                <button type="submit">Acceder</button>
+    <div class="campus-card">
+        <div class="left-banner">
+            <h2>Bienvenidos al Campus Virtual Institucional</h2>
+            <img src="img/logo.png" alt="Escudo ISFT 182" onerror="this.src='https://via.placeholder.com/170?text=ISFT+182'">
+            <p>"Más de 30 años forming Profesionales"</p>
+        </div>
+        <div class="right-form">
+            <h3>Ingreso al Sistema</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Usuario / Email</label>
+                    <input type="text" id="email" required placeholder="Ingrese su usuario o email">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-acceder">Acceder</button>
+                <div id="errorBox" class="error-msg"></div>
             </form>
-
-            <p id="mensajeError" class="error" style="display: none;"></p>
         </div>
     </div>
 
-    <script type="module">
-        import { handleLogin } from "../controlador/authController.js";
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorBox = document.getElementById('errorBox');
 
-        document.getElementById("formLogin").addEventListener("submit", (event) => {
-            event.preventDefault();
-            handleLogin();
+            try {
+                const res = await fetch('../modelo/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    // Redirección según rol
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    window.location.href = 'gestion.html';
+                } else {
+                    errorBox.style.display = 'block';
+                    errorBox.innerText = data.message || 'Usuario o clave incorrectos';
+                }
+            } catch (err) {
+                errorBox.style.display = 'block';
+                errorBox.innerText = 'Error al conectar con el servidor';
+            }
         });
     </script>
-
 </body>
 </html>

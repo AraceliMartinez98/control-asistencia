@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clementina - Sistema de Control de Asistencia ISFT 182</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f4f8; color: #333; }
+        header { background: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header h1 { font-size: 20px; font-weight: 600; }
+        .user-badge { background: #3b82f6; padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+        
+        .main-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        .card-title { font-size: 18px; color: #1e3a8a; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; font-weight: bold; }
+        
+        /* Controles desplegables */
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .filter-item label { display: block; font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 5px; text-transform: uppercase; }
+        select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background-color: #fff; font-size: 14px; color: #1e293b; cursor: pointer; }
+        select:focus { outline: none; border-color: #2563eb; }
+
+        /* Estilos del Alumno */
+        .alumno-section { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; text-align: center; }
+        .btn-presente { background: #16a34a; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .btn-presente:hover { background: #15803d; }
+        .timestamp-box { margin-top: 12px; font-size: 15px; color: #15803d; font-weight: 600; }
+
+        /* Estilos del Docente / Admin */
+        .admin-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-add { background: #2563eb; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .btn-add:hover { background: #1d4ed8; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 14px; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; }
+        .badge-presente { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+        .badge-ausente { background: #fee2e2; color: #b91c1c; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+        .btn-delete { background: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ISFT N° 182 — Clementina Portal</h1>
+        <div class="user-badge" id="lblUsuario">Cargando...</div>
+    </header>
+
+    <div class="main-container">
+        
+        <!-- Seleccionadores Desplegables (Carrera, Año, Materia) -->
+        <div class="card">
+            <div class="card-title">Selección de Cursada</div>
+            <div class="filters-grid">
+                <div class="filter-item">
+                    <label>Carrera</label>
+                    <select id="cmbCarrera">
+                        <option value="">-- Seleccione Carrera --</option>
+                        <option value="1">Análisis de Sistemas</option>
+                        <option value="2">Administración de RRHH</option>
+                        <option value="3">Higiene y Seguridad</option>
+                        <option value="4">Enfermería</option>
+                        <option value="5">Logística</option>
+                        <option value="6">Mantenimiento Industrial</option>
+                        <option value="7">Textil y Confección</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Año</label>
+                    <select id="cmbAño">
+                        <option value="">-- Seleccione Año --</option>
+                        <option value="1">1° Año</option>
+                        <option value="2">2° Año</option>
+                        <option value="3">3° Año</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Materia</label>
+                    <select id="cmbMateria">
+                        <option value="">-- Seleccione Materia --</option>
+                        <option value="101">Ingeniería de Software II</option>
+                        <option value="102">Redes y Comunicaciones</option>
+                        <option value="103">Inglés III</option>
+                        <option value="104">Algoritmos y Estructuras II</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- MÓDULO DEL ALUMNO: Registro con timestamp -->
+        <div class="card alumno-section" id="panelAlumno">
+            <h3 style="color: #1e3a8a; margin-bottom: 10px;">Control de Asistencia del Día</h3>
+            <p style="margin-bottom: 15px; color: #475569;">Presione el botón para registrar su asistencia en el sistema:</p>
+            <button class="btn-presente" onclick="registrarAsistenciaAlumno()">MARCAR PRESENTE</button>
+            <div id="timestampResult" class="timestamp-box"></div>
+        </div>
+
+        <!-- MÓDULO DE DOCENTE Y ADMINISTRADOR: Planilla completa -->
+        <div class="card" id="panelDocenteAdmin">
+            <div class="admin-controls">
+                <div class="card-title" style="margin-bottom:0; border:none;">Listado de Alumnos y Asistencia</div>
+                <button class="btn-add" onclick="agregarAlumnoManual()">+ Agregar Alumno</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Legajo / DNI</th>
+                        <th>Nombre y Apellido</th>
+                        <th>Estado</th>
+                        <th>Hora de Marcado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAlumnos">
+                    <tr>
+                        <td>41526291</td>
+                        <td>Silvana Araceli Martinez</td>
+                        <td><span class="badge-presente">Presente</span></td>
+                        <td>19:05:12 hs</td>
+                        <td><button class="btn-delete" onclick="eliminarFila(this)">Eliminar</button></td>
+                    </tr>
+                    <tr>
+                        <td>38441029</td>
+                        <td>Juan Pérez</td>
+                        <td><span class="badge-ausente">Ausente</span></td>
+                        <td>--:--:--</td>
+                        <td><button class="btn-delete" onclick="eliminarFila(this)">Eliminar</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        // Cargar datos de usuario guardados
+        const usuarioSesion = JSON.parse(localStorage.getItem('usuario')) || { nombre: 'Silvana Araceli Martinez', rol: 'admin' };
+        document.getElementById('lblUsuario').innerText = `${usuarioSesion.nombre} (${usuarioSesion.rol.toUpperCase()})`;
+
+        // Marcar presente con horario en vivo
+        function registrarAsistenciaAlumno() {
+            const ahora = new Date();
+            const hora = ahora.toLocaleTimeString();
+            const fecha = ahora.toLocaleDateString();
+            document.getElementById('timestampResult').innerHTML = 
+                `✓ Presente registrado el ${fecha} a las <strong>${hora} hs</strong>.`;
+        }
+
+        // Agregar alumno manualmente (Admin / Profe)
+        function agregarAlumnoManual() {
+            const legajo = prompt("Ingrese el DNI/Legajo del alumno:");
+            const nombre = prompt("Ingrese el Nombre y Apellido completo:");
+
+            if (legajo && nombre) {
+                const tbody = document.getElementById('tablaAlumnos');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${legajo}</td>
+                    <td>${nombre}</td>
+                    <td><span class="badge-ausente">Ausente</span></td>
+                    <td>--:--:--</td>
+                    <td><button class="btn-delete" onclick="eliminarFila(this)">Eliminar</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Eliminar alumno de la planilla
+        function eliminarFila(btn) {
+            if (confirm("¿Está seguro de remover a este alumno de la lista?")) {
+                btn.closest('tr').remove();
+            }
+        }
+    </script>
+</body>
+</html>

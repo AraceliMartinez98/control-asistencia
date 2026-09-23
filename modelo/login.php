@@ -1,38 +1,38 @@
 <?php
+// modelo/login.php
+header('Content-Type: application/json');
+require_once 'conexion.php';
 
-include_once('conexion.php');
+$input = json_decode(file_get_contents('php://input'), true);
 
-/* lee lo que manda el JS por POST */
-$datos = json_decode(file_get_contents("php://input"), true);
-$email    = $datos['email'] ?? '';
-$password = $datos['password'] ?? '';
+$email = $input['email'] ?? '';
+$password = $input['password'] ?? '';
 
-echo login($email, $password);
-
-function login($email, $password)
-{
-    $mysqli = conexion();
-
-    $query = "SELECT * FROM usuarios WHERE email = ?";
-    $stmt  = $mysqli->prepare($query);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-
-    $result  = $stmt->get_result();
-    $usuario = $result->fetch_assoc();
-
-    $mysqli->close();
-
-    if (!$usuario) {
-        return json_encode(['ok' => false, 'mensaje' => 'Email o password incorrectos']);
-    }
-
-    if (!password_verify($password, $usuario['password'])) {
-        return json_encode(['ok' => false, 'mensaje' => 'Email o password incorrectos']);
-    }
-
-    /* no mandamos el password de vuelta al navegador */
-    unset($usuario['password']);
-
-    return json_encode(['ok' => true, 'usuario' => $usuario]);
+if (empty($email) || empty($password)) {
+    echo json_encode(["status" => "error", "message" => "Por favor complete todos los campos"]);
+    exit();
 }
+
+// Consulta de usuario (ejemplo adaptado a la tabla de usuarios)
+$stmt = $conexion->prepare("SELECT id, nombre, apellido, rol, password FROM usuarios WHERE email = ? OR dni = ?");
+$stmt->bind_param("ss", $email, $email);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($user = $result->fetch_assoc()) {
+    // Si la contraseña coincide (verificación simple o hash)
+    if ($password === $user['password'] || password_verify($password, $user['password'])) {
+        echo json_encode([
+            "status" => "success",
+            "usuario" => [
+                "id" => $user['id'],
+                "nombre" => $user['nombre'] . ' ' . $user['apellido'],
+                "rol" => $user['rol']
+            ]
+        ]);
+        exit();
+    }
+}
+
+echo json_encode(["status" => "error", "message" => "Credenciales inválidas"]);
+?>

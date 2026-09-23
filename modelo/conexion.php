@@ -1,20 +1,18 @@
 <?php
+// modelo/conexion.php
+$host = "localhost";
+$user = "root";
+$password = "";
+$database = "control_asistencia";
+$port = 3306; // Puerto estándar de MySQL en XAMPP
 
-/* funcion que conecta a la base de datos */
-function conexion()
-{
-    $host = "localhost";
-    $db   = "control_asistencia"; /* nombre de la BD */
-    $usr  = "root";
-    $pass = ""; /* en XAMPP no tiene contraseña */
+$conexion = new mysqli($host, $user, $password, $database, $port);
 
-    $mysqli = new mysqli($host, $usr, $pass, $db);
-
-    if ($mysqli->connect_errno) {
-        die("Fallo la conexion: " . $mysqli->connect_errno);
-    }
-
-    $mysqli->set_charset("utf8mb4");
-
-    return $mysqli;
+if ($conexion->connect_error) {
+    header('Content-Type: application/json');
+    echo json_encode(["status" => "error", "message" => "Error de conexión a la BD: " . $conexion->connect_error]);
+    exit();
 }
+
+$conexion->set_charset("utf8mb4");
+?>
