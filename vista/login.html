@@ -28,7 +28,7 @@
         <div class="left-banner">
             <h2>Bienvenidos al Campus Virtual Institucional</h2>
             <img src="img/logo.png" alt="Escudo ISFT 182" onerror="this.src='https://via.placeholder.com/170?text=ISFT+182'">
-            <p>"Más de 30 años forming Profesionales"</p>
+            <p>"Más de 30 años formando Profesionales"</p>
         </div>
         <div class="right-form">
             <h3>Ingreso al Sistema</h3>
@@ -50,9 +50,12 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
             const errorBox = document.getElementById('errorBox');
+
+            errorBox.style.display = 'none';
+            errorBox.innerText = '';
 
             try {
                 const res = await fetch('../modelo/login.php', {
@@ -60,10 +63,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
+
+                if (!res.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
                 const data = await res.json();
 
                 if (data.status === 'success') {
-                    // Redirección según rol
                     localStorage.setItem('usuario', JSON.stringify(data.usuario));
                     window.location.href = 'gestion.html';
                 } else {
@@ -72,7 +79,7 @@
                 }
             } catch (err) {
                 errorBox.style.display = 'block';
-                errorBox.innerText = 'Error al conectar con el servidor';
+                errorBox.innerText = 'Error al conectar con el servidor. Verifique la conexión o el backend.';
             }
         });
     </script>
