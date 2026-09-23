@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel del alumno - Asistencia PP3</title>
+    <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+
+    <h1>Panel del alumno</h1>
+    <p>
+        Hola, <span id="nombreUsuario"></span> —
+        <a href="#" id="linkLogout">Cerrar sesion</a>
+    </p>
+
+    <p>Aca va a ir el boton para marcar presente (proximo paso).</p>
+
+    <script type="module">
+        import { protegerPagina } from "../../controlador/authGuard.js";
+        import { handleLogout } from "../../controlador/authController.js";
+
+        const usuario = protegerPagina("alumno");
+        if (usuario) {
+            document.getElementById("nombreUsuario").textContent = usuario.nombre;
+        }
+        document.getElementById("linkLogout").addEventListener("click", handleLogout);
+    </script>
+
+</body>
+</html>

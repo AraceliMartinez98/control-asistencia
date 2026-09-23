@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel de administración - Asistencia PP3</title>
+    <link rel="stylesheet" href="../css/panel.css">
+</head>
+<body>
+
+    <header class="barra">
+        <span class="barra-marca">Control de Asistencia</span>
+        <nav aria-label="Principal">
+            <a href="dashboard.html" aria-current="page">Materias</a>
+            <a href="comisiones.html">Comisiones</a>
+        </nav>
+        <div class="barra-usuario">
+            <span>Hola, <span id="nombreUsuario"></span> (admin)</span>
+            <a href="#" id="linkLogout">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Panel de administración</h1>
+
+        <section class="tarjeta">
+            <h2>Materias existentes</h2>
+            <div class="tabla-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Materia</th>
+                            <th>Carrera</th>
+                            <th class="col-accion">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMaterias">
+                        <tr><td colspan="3">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="tarjeta">
+            <h2>Cargar nueva materia</h2>
+            <form id="formMateria">
+                <label>
+                    Nombre de la materia
+                    <input type="text" id="nombreMateria" required>
+                </label>
+                <label>
+                    Carrera
+                    <select id="selectCarrera" required>
+                        <option value="">-- Seleccionar --</option>
+                    </select>
+                </label>
+                <button type="submit">Guardar materia</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module">
+        import { protegerPagina } from "../../controlador/authGuard.js";
+        import { handleLogout } from "../../controlador/authController.js";
+        import { cargarCarreras, cargarMaterias, handleCrearMateria } from "../../controlador/materiaController.js";
+
+        const usuario = protegerPagina("admin");
+
+        if (usuario) {
+            document.getElementById("nombreUsuario").textContent = usuario.nombre;
+            cargarCarreras();
+            cargarMaterias();
+        }
+
+        document.getElementById("formMateria").addEventListener("submit", handleCrearMateria);
+        document.getElementById("linkLogout").addEventListener("click", handleLogout);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesion - Control de Asistencia</title>
+    <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <img src="img/logo.png" alt="Logo del instituto" class="logo">
+            <h1>Control de Asistencia</h1>
+            <p class="subtitulo">Ingresa con tu email y contraseña</p>
+
+            <form id="formLogin">
+                <label for="loginEmail">Usuario (email)</label>
+                <input type="email" id="loginEmail" required>
+
+                <label for="loginPassword">Contraseña</label>
+                <input type="password" id="loginPassword" required>
+
+                <button type="submit">Acceder</button>
+            </form>
+
+            <p id="mensajeError" class="error" style="display: none;"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { handleLogin } from "../controlador/authController.js";
+
+        document.getElementById("formLogin").addEventListener("submit", (event) => {
+            event.preventDefault();
+            handleLogin();
+        });
+    </script>
+
+</body>
+</html>

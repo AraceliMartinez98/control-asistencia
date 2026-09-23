@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comisiones - Asistencia PP3</title>
+    <link rel="stylesheet" href="../css/estilo.css">
+</head>
+<body>
+
+    <h1>Comisiones</h1>
+    <p>
+        Hola, <span id="nombreUsuario"></span> (admin) —
+        <a href="dashboard.html">Volver a materias</a> —
+        <a href="#" id="linkLogout">Cerrar sesion</a>
+    </p>
+
+    <h2>Comisiones existentes</h2>
+    <table border="1" cellpadding="6">
+        <tr>
+            <th>Materia</th>
+            <th>Comision</th>
+            <th>Docente</th>
+            <th>Accion</th>
+        </tr>
+        <tbody id="tablaComisiones">
+            <tr><td colspan="4">Cargando...</td></tr>
+        </tbody>
+    </table>
+
+    <h2>Cargar nueva comision</h2>
+    <form id="formComision">
+        <label>
+            Materia:
+            <select id="selectMateria" required>
+                <option value="">-- Seleccionar --</option>
+            </select>
+        </label>
+        <br>
+        <label>
+            Nombre de la comision:
+            <input type="text" id="nombreComision" placeholder="ej: Unica, Comision A" required>
+        </label>
+        <br>
+        <label>
+            Docente:
+            <select id="selectDocente">
+                <option value="">-- Sin asignar --</option>
+            </select>
+        </label>
+        <br>
+        <button type="submit">Guardar comision</button>
+    </form>
+
+    <script type="module">
+        import { protegerPagina } from "../../controlador/authGuard.js";
+        import { handleLogout } from "../../controlador/authController.js";
+        import {
+            cargarMateriasSelect,
+            cargarDocentesSelect,
+            cargarComisiones,
+            handleCrearComision,
+        } from "../../controlador/comisionController.js";
+
+        const usuario = protegerPagina("admin");
+
+        if (usuario) {
+            document.getElementById("nombreUsuario").textContent = usuario.nombre;
+            cargarMateriasSelect();
+            cargarDocentesSelect();
+            cargarComisiones();
+        }
+
+        document.getElementById("formComision").addEventListener("submit", handleCrearComision);
+        document.getElementById("linkLogout").addEventListener("click", handleLogout);
+    </script>
+
+</body>
+</html>
