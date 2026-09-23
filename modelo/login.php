@@ -22,23 +22,25 @@ try {
         exit();
     }
 
-    $stmt = $conexion->prepare("SELECT id, nombre, apellido, rol, password FROM usuarios WHERE email = ? OR dni = ?");
+    // Se cambió 'id' por 'id_usuario' para coincidir con la estructura SQL
+    $stmt = $conexion->prepare("SELECT id_usuario, nombre, apellido, rol, password FROM usuarios WHERE email = ?");
     
     if (!$stmt) {
-        echo json_encode(["status" => "error", "message" => "Error en la consulta SQL (verifique la tabla usuarios)"]);
+        echo json_encode(["status" => "error", "message" => "Error en la consulta SQL"]);
         exit();
     }
 
-    $stmt->bind_param("ss", $email, $email);
+    $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($user = $result->fetch_assoc()) {
+        // Verifica la contraseña ingresada
         if ($password === $user['password'] || password_verify($password, $user['password'])) {
             echo json_encode([
                 "status" => "success",
                 "usuario" => [
-                    "id" => $user['id'],
+                    "id" => $user['id_usuario'],
                     "nombre" => $user['nombre'] . ' ' . $user['apellido'],
                     "rol" => $user['rol']
                 ]
